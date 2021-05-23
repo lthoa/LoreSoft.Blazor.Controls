@@ -6,8 +6,16 @@
 <button class="btn btn-secondary" @onclick="@(() => DataGrid.Pager.Page = 5)">Go to page 5</button>
 <button class="btn btn-secondary" @onclick="@(() => DataGrid.Pager.PageSize = 25)">Page Size 25</button>
 
+<Dropdown TItem="string" Text="Hành động">
+    <ChildContent>
+        <DropdownItem Item="@list[0]">.NET</DropdownItem>
+        <DropdownItem Item="@list[1]">Python</DropdownItem>        
+        <DropdownItem Item="@list[2]">Java</DropdownItem>
+    </ChildContent>
+</Dropdown>
 
-<DataGrid Data="People" class="table table-hover" Selectable="true" @bind-SelectedItems="Selected" @ref="DataGrid">
+
+<DataGrid Data="People" Selectable="true" @bind-SelectedItems="Selected" @ref="DataGrid">
     <DataColumns>
         <DataColumn TItem="Person" Property="p => p.Id" Width="70px">
             <Template Context="item">
@@ -19,11 +27,24 @@
         <DataColumn TItem="Person" Property="p => p.Score" Width="100px" Style="@SoreStyle" />
         <DataColumn TItem="Person" Property="p => p.Location" Sortable="false" />
         <DataColumn TItem="Person" Property="p => p.Birthday" Format="d" />
+
+        <DataColumn ClassName="text-end" Title="Actions" TItem="Person" Property="@(x => x.FirstName)">
+            <Template Context="item">
+                <Dropdown TItem="Person" Text="Hành động">
+                    <ChildContent>
+                        <DropdownItem Item="@item.FirstName">Xoá</DropdownItem>
+                        <DropdownItem Item="@item.FirstName">Xem chi tiết</DropdownItem>
+                        <DropdownItem Item="@item.FirstName">Xuất ra</DropdownItem>
+                    </ChildContent>
+                </Dropdown>
+
+            </Template>
+        </DataColumn>
+
     </DataColumns>
     <DataPagination Context="grid">
-        <DataPager PageSize="10" />
         <DataSizer />
-        <div>@grid.Pager.StartItem - @grid.Pager.EndItem of @grid.Pager.Total</div>
+        <DataPager PageSize="10" />        
     </DataPagination>
 </DataGrid>
 
@@ -44,9 +65,17 @@
 
     private DataGrid<Person> DataGrid { get; set; }
 
+    List<string> list = new List<string> { ".NET", "Python", "Java" };
+
+
     protected override void OnInitialized()
     {
         People = Data.GeneratePeople(200).ToList();
+    }
+
+    protected void DeleteSelectedItems(List<Person> items)
+    {
+
     }
 
 

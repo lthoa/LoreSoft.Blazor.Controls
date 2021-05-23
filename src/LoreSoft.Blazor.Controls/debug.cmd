@@ -1,0 +1,1 @@
+XCOPY "bin\Debug\net5.0\LoreSoft.Blazor.Controls.dll" "..\..\..\..\oqtane.framework\Oqtane.Server\bin\Debug\net5.0\" /Y

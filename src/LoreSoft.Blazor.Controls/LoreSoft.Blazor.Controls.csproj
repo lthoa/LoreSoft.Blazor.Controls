@@ -18,4 +18,13 @@
     <EmbeddedResource Include="wwwroot\**" Exclude="**\*.js;**\*.css" LogicalName="blazor:file:%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Remove="DisplayToolbar.razor" />
+  </ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="IF $(ConfigurationName) == Debug (debug.cmd)" />
+		<Exec Command="IF $(ConfigurationName) == Release (release.cmd)" />
+	</Target>
+
 </Project>

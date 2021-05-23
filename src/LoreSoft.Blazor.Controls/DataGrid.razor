@@ -4,7 +4,7 @@
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 
 <CascadingValue IsFixed="true" Value="this" Name="Grid">
-    <div class="data-grid-container">
+    <div class="table-responsive">
         @if (DataToolbar != null)
         {
             @DataToolbar
@@ -13,30 +13,30 @@
         {
             @DataColumns
         }
-        <table class="data-grid" @attributes="@TableAttributes">
+        <table class="table align-middle table-row-dashed fs-6 gy-5 dataTable no-footer" @attributes="@TableAttributes">
             <colgroup>
                 @if (DetailTemplate != null)
                 {
-                    <col style="width: 32px; padding: 0"/>
+                    <col style="width: 32px; padding: 0" />
                 }
                 @if (Selectable)
                 {
-                    <col style="width: 32px; padding: 0"/>
+                    <col style="width: 32px; padding: 0" />
                 }
                 @foreach (var column in VisibleColumns)
                 {
                     if (string.IsNullOrEmpty(column.Width))
                     {
-                        <col/>
+                        <col />
                     }
                     else
                     {
-                        <col style="width: @column.Width"/>
+                        <col style="width: @column.Width" />
                     }
                 }
             </colgroup>
             <thead>
-                <tr>
+                <tr class="text-start text-gray-400 fw-bolder fs-7 text-uppercase gs-0">
                     @if (DetailTemplate != null)
                     {
                         <th class="data-grid-hierarchy-cell">
@@ -44,30 +44,26 @@
                     }
                     @if (Selectable)
                     {
-                        <th class="data-grid-selector-cell">
-                            <div class="data-check">
-                                <input class="data-check-input" type="checkbox" checked="@IsAllSelected()" @onchange="ToggleSelectAll"/>
+                        <th class="w-10px pe-2 sorting_disabled">
+                            <div class="form-check form-check-sm form-check-custom form-check-solid me-3">
+                                <input class="form-check-input" type="checkbox" checked="@IsAllSelected()" @onchange="ToggleSelectAll">
                             </div>
                         </th>
                     }
                     @foreach (var column in VisibleColumns)
                     {
-                        <th @key="column" class="@column.HeaderClass">
-                            @if (Sortable && column.Sortable)
-                            {
-                                <button type="button"
-                                        class="data-grid-header"
-                                        @onclick="() => SortByAsync(column)">
-                                    @HeaderFragment(column)
-                                </button>
-                            }
-                            else
-                            {
-                                <div class="data-grid-header">
-                                    @HeaderFragment(column)
-                                </div>
-                            }
-                        </th>
+                        @if (Sortable && column.Sortable)
+                        {
+                            <th @key="column" class="@column.HeaderClass @SortCss(column)" @onclick="() => SortByAsync(column)">
+                                @HeaderFragment(column)
+                            </th>
+                        }
+                        else
+                        {
+                            <th @key="column" class="@column.HeaderClass">
+                                @HeaderFragment(column)
+                            </th>
+                        }
                     }
                 </tr>
             </thead>
@@ -105,7 +101,7 @@
                             @foreach (var column in VisibleColumns)
                             {
                                 <td @key="column" class="@column.ClassName">
-                                    <Skeleton/>
+                                    <Skeleton />
                                 </td>
                             }
                         </tr>
@@ -161,33 +157,46 @@
                 </tfoot>
             }
         </table>
-        @if (DataPagination != null)
-        {
-            <CascadingValue IsFixed="true" Value="Pager" Name="PagerState">
-                <div class="data-pagination">
-                    @DataPagination(this)
-                </div>
-            </CascadingValue>
-        }
-        @if (IsLoading)
-        {
-            @if (LoadingTemplate == null)
-            {
-                <LoadingBlock IsLoading="true"/>
-            }
-            else
-            {
-                @LoadingTemplate
-            }
-        }
     </div>
+    @if (DataPagination != null)
+    {
+        <CascadingValue IsFixed="true" Value="Pager" Name="PagerState">
+            <div class="row pt-8">
+                @DataPagination(this)
+            </div>
+        </CascadingValue>
+    }
+    @if (IsLoading)
+    {
+        @if (LoadingTemplate == null)
+        {
+            <LoadingBlock IsLoading="true"/>
+        }
+        else
+        {
+            @LoadingTemplate
+        }
+    }
 </CascadingValue>
 
 @code
 {
+    protected int viewOrder = 1;
+    
+    private string SortCss(DataColumn<TItem> column)
+    {
+        @if (column.Sortable && column.SortIndex >= 0)
+        {
+            return column.SortDescending ? "sorting_desc" : "sorting_asc";
+        }
+
+        return "";
+    }
+
+
     protected RenderFragment<DataColumn<TItem>> HeaderFragment => column => __builder =>
     {
-        @if (column.HeaderTemplate != null)
+    @if (column.HeaderTemplate != null)
         {
             @column.HeaderTemplate
         }
@@ -195,53 +204,49 @@
         {
             @column.HeaderTitle()
         }
-
-        @if (column.Sortable && column.SortIndex >= 0)
-        {
-            <span class="data-grid-header-sort @(column.SortDescending ? "data-grid-header-sort-desc" : "data-grid-header-sort-asc" )"></span>
-        }
     };
+
 
     protected RenderFragment<TItem> RowFragment => item => __builder =>
     {
-        <tr @key="new {item, i = 0}" class="@RowClass" style="@(RowStyle?.Invoke(item))">
-            @if (DetailTemplate != null)
+    <tr @key="new {item, i = 0}" class="@(viewOrder++ % 2 == 0 ? "odd" : "event") @RowClass" style="@(RowStyle?.Invoke(item))">
+        @if (DetailTemplate != null)
             {
-                <td class="data-grid-hierarchy-cell">
-                    <button type="button"
-                            @onclick="() => ToggleDetailRow(item)"
-                            class="data-grid-hierarchy-button @(IsRowExpanded(item) ? "data-grid-hierarchy-button-expanded" : "data-grid-hierarchy-button-collapsed" )"></button>
-                </td>
+            <td class="data-grid-hierarchy-cell">
+                <button type="button"
+                        @onclick="() => ToggleDetailRow(item)"
+                        class="data-grid-hierarchy-button @(IsRowExpanded(item) ? "data-grid-hierarchy-button-expanded" : "data-grid-hierarchy-button-collapsed" )"></button>
+            </td>
             }
-            @if (Selectable)
+        @if (Selectable)
             {
-                <td class="data-grid-selector-cell">
-                    <div class="data-check">
-                      <input class="data-check-input" type="checkbox" checked="@(IsRowSelected(item))" @onchange="() => ToggleSelectRow(item)" />
-                    </div>
-                </td>
+            <td>
+                <div class="form-check form-check-sm form-check-custom form-check-solid">
+					<input class="form-check-input" type="checkbox" checked="@(IsRowSelected(item))" @onchange="() => ToggleSelectRow(item)" />
+				</div>
+            </td>
             }
-            @foreach (var column in VisibleColumns)
+        @foreach (var column in VisibleColumns)
             {
-                <td @key="column" class="@column.ClassName" style="@(column.Style?.Invoke(item))" @attributes="@column.Attributes">
-                    @if (column.Template != null)
+            <td @key="column" class="@column.ClassName" style="@(column.Style?.Invoke(item))" @attributes="@column.Attributes">
+                @if (column.Template != null)
                     {
-                        @column.Template(item)
+                    @column.Template(item)
                     }
                     else
                     {
-                        @column.CellValue(item)
+                    @column.CellValue(item)
                     }
-                </td>
+            </td>
             }
-        </tr>
-        @if (DetailTemplate != null && IsRowExpanded(item))
+    </tr>
+    @if (DetailTemplate != null && IsRowExpanded(item))
         {
-            <tr @key="new {item, i = 1}" class="data-grid-detail-row">
-                <td colspan="@CellCount" class="data-grid-detail-cell">
-                    @DetailTemplate(item)
-                </td>
-            </tr>
+        <tr @key="new {item, i = 1}" class="data-grid-detail-row">
+            <td colspan="@CellCount" class="data-grid-detail-cell">
+                @DetailTemplate(item)
+            </td>
+        </tr>
         }
     };
 }

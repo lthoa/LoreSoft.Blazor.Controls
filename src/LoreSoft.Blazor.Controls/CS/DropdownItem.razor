@@ -1,0 +1,16 @@
+﻿@typeparam TItem
+
+<div class="menu-item px-3">
+    <a class="menu-link px-3" Item="@Item" >@ChildContent(Item)</a>
+</div>
+
+
+@code {
+    [CascadingParameter(Name = "Dropdown")]
+    public Dropdown<TItem> Dropdown { get; set; }
+
+    [Parameter]
+    public TItem Item { get; set; }
+    [Parameter]
+    public RenderFragment<TItem> ChildContent { get; set; }
+}

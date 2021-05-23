@@ -16,10 +16,8 @@ namespace LoreSoft.Blazor.Controls
         [Parameter(CaptureUnmatchedValues = true)]
         public Dictionary<string, object> Attributes { get; set; }
 
-
         [Parameter]
         public EventCallback<PageChangedEventArgs> PagerChanged { get; set; }
-
 
         [Parameter]
         public int PageSize { get; set; } = 25;
@@ -52,20 +50,22 @@ namespace LoreSoft.Blazor.Controls
         public string LastText { get; set; } = "»";
 
         [Parameter]
-        public string PagerClass { get; set; } = "data-pager";
+        public string PagerContainerClass { get; set; } = "col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end";
 
         [Parameter]
-        public string ItemClass { get; set; } = "data-page-item";
+        public string PagerClass { get; set; } = "pagination";
 
         [Parameter]
-        public string ButtonClass { get; set; } = "data-page-link";
+        public string ItemClass { get; set; } = "paginate_button page-item";
+
+        [Parameter]
+        public string ButtonClass { get; set; } = "page-link";
 
         [Parameter]
         public string CurrentClass { get; set; } = "active";
 
         [Parameter]
         public string DisabledClass { get; set; } = "disabled";
-
 
         public void FirstPage()
         {
@@ -110,12 +110,10 @@ namespace LoreSoft.Blazor.Controls
             PagerState.Page = page;
         }
 
-
         public void Dispose()
         {
             PagerState.PropertyChanged -= OnStatePropertyChange;
         }
-
 
         protected override void OnInitialized()
         {
@@ -133,20 +131,22 @@ namespace LoreSoft.Blazor.Controls
                 return;
 
             builder.OpenElement(0, "div");
-            builder.AddAttribute(1, "role", "navigation");
+            builder.AddAttribute(1, "class", PagerContainerClass);
             builder.AddMultipleAttributes(2, Attributes);
+
+            builder.OpenElement(3, "div");
+            builder.AddAttribute(4, "class", "dataTables_paginate paging_simple_numbers");
 
             RenderPagination(builder);
 
             builder.CloseElement(); // div
-
+            builder.CloseElement(); // div
         }
-
 
         private void RenderPagination(RenderTreeBuilder builder)
         {
-            builder.OpenElement(3, "ul");
-            builder.AddAttribute(4, "class", PagerClass);
+            builder.OpenElement(5, "ul");
+            builder.AddAttribute(6, "class", PagerClass);
 
             RenderFirstLink(builder);
             RenderPreviousLink(builder);
@@ -205,24 +205,24 @@ namespace LoreSoft.Blazor.Controls
                 .AddClass(disabledClass, !enabled)
                 .ToString();
 
-            builder.OpenElement(5, "li");
-            builder.AddAttribute(6, "class", itemClass);
+            builder.OpenElement(7, "li");
+            builder.AddAttribute(8, "class", itemClass);
             builder.SetKey(new { page, text });
 
             if (enabled)
             {
-                builder.OpenElement(7, "button");
-                builder.AddAttribute(8, "class", ButtonClass);
-                builder.AddAttribute(9, "type", "button");
-                builder.AddAttribute(10, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => GoToPage(page)));
-                builder.AddContent(11, text);
+                builder.OpenElement(9, "button");
+                builder.AddAttribute(10, "class", ButtonClass);
+                builder.AddAttribute(11, "type", "button");
+                builder.AddAttribute(12, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, () => GoToPage(page)));
+                builder.AddContent(13, text);
                 builder.CloseElement(); // button
             }
             else
             {
-                builder.OpenElement(12, "span");
-                builder.AddAttribute(13, "class", ButtonClass);
-                builder.AddContent(14, text);
+                builder.OpenElement(14, "span");
+                builder.AddAttribute(15, "class", ButtonClass);
+                builder.AddContent(16, text);
                 builder.CloseElement(); // span
             }
 
@@ -276,14 +276,12 @@ namespace LoreSoft.Blazor.Controls
                 return (start, end);
             }
 
-
             int c = (int)Math.Ceiling(PagerState.Page / (double)DisplaySize);
 
             start = (c - 1) * DisplaySize + 1;
             end = Math.Min(start + DisplaySize - 1, PagerState.PageCount);
             return (start, end);
         }
-
 
         private void OnStatePropertyChange(object sender, PropertyChangedEventArgs e)
         {
@@ -297,7 +295,6 @@ namespace LoreSoft.Blazor.Controls
                 }
             });
         }
-
     }
 
     public record PageChangedEventArgs(int Page, int PageSize);

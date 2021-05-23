@@ -7,7 +7,9 @@
 
 <input type="text" class="form-control" @bind-value="SearchText.Value" @bind-value:event="oninput" />
 
-<DataGrid DataProvider="LoadData" class="table" Sortable="false" Selectable="true" @ref="Grid">
+
+
+<DataGrid DataProvider="LoadData" Sortable="false" Selectable="true" @ref="Grid">
     <DataColumns>
         <DataColumn TItem="Repository" Property="p => p.Id" Width="70px" />
         <DataColumn TItem="Repository" Property="p => p.Name" />
